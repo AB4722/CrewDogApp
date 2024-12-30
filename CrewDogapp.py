@@ -55,10 +55,7 @@ def center_design_on_images(design_path, background_paths, output_dir, collectio
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
     if request.method == "POST":
-        # Debugging: Print working directory and folder contents
         base_path = get_base_path()
-        print("Current working directory:", os.getcwd())
-        print("Base path:", base_path)
 
         # Get user inputs
         collection_name = request.form.get("collection_name", "DefaultCollection")
@@ -69,10 +66,8 @@ def upload_file():
 
         # Check if background folders exist
         if not os.path.exists(crewneck_folder):
-            print("Error: Crewneck background folder not found")
             abort(400, description="Crewneck backgrounds not found.")
         if not os.path.exists(hoodie_folder):
-            print("Error: Hoodie background folder not found")
             abort(400, description="Hoodie backgrounds not found.")
 
         # Get the background files

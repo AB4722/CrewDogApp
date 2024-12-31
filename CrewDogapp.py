@@ -63,15 +63,18 @@ def upload_file():
         if not os.path.exists(crewneck_folder):
             abort(400, description="Crewneck backgrounds not found.")
 
-        # Get the first two Crewneck files
+        # Get one Crewneck file (the first one)
         crewneck_files = [
             os.path.join(crewneck_folder, f)
             for f in os.listdir(crewneck_folder)
             if os.path.isfile(os.path.join(crewneck_folder, f))
-        ][:2]  # Select only the first two files
+        ]
 
         if not crewneck_files:
             abort(400, description="No Crewneck files found.")
+
+        # Select the first Crewneck file
+        crewneck_file_path = crewneck_files[0]
 
         # Get the uploaded design file
         design_file = request.files["design"]
@@ -80,49 +83,45 @@ def upload_file():
         design_path = os.path.join(upload_dir, "uploaded_design.png")
         design_file.save(design_path)
 
-        # Output directory for modified images
+        # Output directory for the modified image
         output_dir = os.path.join(base_path, "output")
         os.makedirs(output_dir, exist_ok=True)
 
-        # Process each Crewneck file
-        for crewneck_file_path in crewneck_files:
-            with Image.open(crewneck_file_path).convert("RGBA") as background, Image.open(design_path).convert("RGBA") as design:
-                # Resize the design to fit proportionally within the background
-                bg_width, bg_height = background.size
-                design_aspect_ratio = design.width / design.height
+        # Process the Crewneck file
+        with Image.open(crewneck_file_path).convert("RGBA") as background, Image.open(design_path).convert("RGBA") as design:
+            # Resize the design to fit proportionally within the background
+            bg_width, bg_height = background.size
+            design_aspect_ratio = design.width / design.height
 
-                # Define offsets
-                extra_offset_mm_left = 5  # Additional offset to the left in millimeters
-                extra_offset_mm_down = 10  # Additional offset downward in millimeters
+            # Define offsets
+            extra_offset_mm_left = 5  # Additional offset to the left in millimeters
+            extra_offset_mm_down = 10  # Additional offset downward in millimeters
 
-                # Convert offsets to pixels
-                dpi = 300  # Assuming 300 DPI
-                offset_px_left = int(((10 + extra_offset_mm_left) / 25.4) * dpi)
-                offset_px_down = int(((10 + extra_offset_mm_down) / 25.4) * dpi)
+            # Convert offsets to pixels
+            dpi = 300  # Assuming 300 DPI
+            offset_px_left = int(((10 + extra_offset_mm_left) / 25.4) * dpi)
+            offset_px_down = int(((10 + extra_offset_mm_down) / 25.4) * dpi)
 
-                # Resize the design to 90% of its original calculated size
-                design_width = int(bg_width * 0.27)  # 30% reduced by 10%
-                design_height = int(design_width / design_aspect_ratio)
-                design = design.resize((design_width, design_height), Image.ANTIALIAS)
+            # Resize the design to 90% of its original calculated size
+            design_width = int(bg_width * 0.27)  # 30% reduced by 10%
+            design_height = int(design_width / design_aspect_ratio)
+            design = design.resize((design_width, design_height), Image.ANTIALIAS)
 
-                # Adjust position
-                x = bg_width - design_width - offset_px_left
-                y = offset_px_down
+            # Adjust position
+            x = bg_width - design_width - offset_px_left
+            y = offset_px_down
 
-                # Paste the design onto the background
-                composite = background.copy()
-                composite.paste(design, (x, y), design)
+            # Paste the design onto the background
+            composite = background.copy()
+            composite.paste(design, (x, y), design)
 
-                # Save the modified image
-                output_file_name = f"output_{os.path.basename(crewneck_file_path)}"
-                composite.save(os.path.join(output_dir, output_file_name), "PNG")
+            # Save the modified image
+            output_file_name = f"output_{os.path.basename(crewneck_file_path)}"
+            output_file_path = os.path.join(output_dir, output_file_name)
+            composite.save(output_file_path, "PNG")
 
-        # Create a zip file of the results
-        zip_path = os.path.join(base_path, "output.zip")
-        shutil.make_archive(zip_path.replace(".zip", ""), "zip", output_dir)
-
-        # Send the zip file to the user
-        return send_file(zip_path, as_attachment=True)
+        # Send the modified image back to the user
+        return send_file(output_file_path, as_attachment=True)
 
     # Render the HTML form
     return render_template("index.html")

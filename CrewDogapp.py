@@ -49,23 +49,26 @@ def upload_file():
 
         # Process the Crewneck file
         with Image.open(crewneck_file_path).convert("RGBA") as background, Image.open(design_path).convert("RGBA") as design:
+            # Ensure DPI consistency between images
+            dpi = background.info.get('dpi', (300, 300))
+            design.info['dpi'] = dpi
+
             # Resize the design to fit proportionally within the background
             bg_width, bg_height = background.size
             design_aspect_ratio = design.width / design.height
 
             # Define offsets
-            extra_offset_mm_left = 11  # Move 10mm to the left
+            extra_offset_mm_left = 11  # Move 11mm to the left
             extra_offset_mm_down = 8  # Additional offset downward in millimeters
 
             # Convert offsets to pixels
-            dpi = 300  # Assuming 300 DPI
-            offset_px_left = int((extra_offset_mm_left / 25.4) * dpi)
-            offset_px_down = int((extra_offset_mm_down / 25.4) * dpi)
+            offset_px_left = int((extra_offset_mm_left / 25.4) * dpi[0])
+            offset_px_down = int((extra_offset_mm_down / 25.4) * dpi[1])
 
             # Resize the design to 85% of its original calculated size
             design_width = int(bg_width * 0.255)  # 30% reduced to 25.5%
             design_height = int(design_width / design_aspect_ratio)
-            design = design.resize((design_width, design_height), Image.ANTIALIAS)
+            design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)  # High-quality resampling
 
             # Adjust position
             x = bg_width - design_width - offset_px_left
@@ -73,12 +76,12 @@ def upload_file():
 
             # Paste the design onto the background
             composite = background.copy()
-            composite.paste(design, (x, y), design)
+            composite.alpha_composite(design, (x, y))  # Use alpha compositing to ensure transparency
 
-            # Save the modified image
+            # Save the modified image with maximum PNG quality
             output_file_name = f"output_{os.path.basename(crewneck_file_path)}"
             output_file_path = os.path.join(output_dir, output_file_name)
-            composite.save(output_file_path, "PNG")
+            composite.save(output_file_path, "PNG", optimize=True)
 
         # Send the modified image back to the user
         return send_file(output_file_path, as_attachment=True)

@@ -14,7 +14,6 @@ def get_base_path():
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
     if request.method == "POST":
-        # Define the path to the Crewneck folder
         base_path = get_base_path()
         crewneck_folder = os.path.join(base_path, "backgrounds", "Crewneck")
 
@@ -43,8 +42,8 @@ def upload_file():
 
         # Process the Crewneck file
         with Image.open(crewneck_file_path).convert("RGBA") as background, Image.open(design_path).convert("RGBA") as design:
-            # Set high DPI (600 DPI)
-            high_dpi = 600
+            # Set very high DPI (1200 DPI)
+            high_dpi = 1200
 
             # Resize background to match higher DPI
             bg_width, bg_height = background.size
@@ -59,7 +58,7 @@ def upload_file():
             design_height = int(design_width / design_aspect_ratio)
             design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)
 
-            # Define offsets (converted to 600 DPI)
+            # Define offsets (converted to 1200 DPI)
             extra_offset_mm_left = 11  # Move 11mm to the left
             extra_offset_mm_down = 8  # Move 8mm down
             offset_px_left = int((extra_offset_mm_left / 25.4) * high_dpi)
@@ -73,7 +72,7 @@ def upload_file():
             composite = background.copy()
             composite.alpha_composite(design, (x, y))
 
-            # Save the modified image with high DPI
+            # Save the modified image with maximum PNG quality
             output_file_name = f"output_{os.path.basename(crewneck_file_path)}"
             output_file_path = os.path.join(output_dir, output_file_name)
             composite.save(output_file_path, "PNG", dpi=(high_dpi, high_dpi), optimize=True)

@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Design</title>
+    <title>Test Hello World</title>
 </head>
 <body>
-    <h1>Mockup Maker</h1>
-    <form action="/" method="POST" enctype="multipart/form-data">
-        <label for="collection_name">Collection Name:</label><br>
-        <input type="text" id="collection_name" name="collection_name" value="TestCollection"><br><br>
-        
-        <label for="design">Upload Design File:</label><br>
-        <input type="file" id="design" name="design" accept="image/*"><br><br>
-        
-        <button type="submit">Submit</button>
-    </form>
+    <h1>Welcome to Mockup Maker</h1>
+    <button onclick="sayHello()">Click Me</button>
+
+    <script>
+        function sayHello() {
+            console.log("Hello, World!");
+            alert("Hello, World!"); // Optional: Display an alert
+        }
+    </script>
 </body>
 </html>

@@ -4,17 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mockup Maker</title>
+    <style>
+        body {
+            background-color: black; /* Set background to black */
+            color: white; /* Set text color to white for contrast */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        img {
+            margin-top: 20px;
+            max-width: 80%;
+            height: auto;
+        }
+
+        form {
+            text-align: center;
+        }
+
+        label {
+            font-size: 1.2rem;
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="file"] {
+            margin: 10px 0;
+        }
+
+        button {
+            background-color: #1e90ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #4682b4;
+        }
+    </style>
 </head>
 <body>
     <h1>Mockup Maker</h1>
-    <form action="/" method="POST" enctype="multipart/form-data">
-        <label for="collection_name">Collection Name:</label><br>
-        <input type="text" id="collection_name" name="collection_name" value="TestCollection"><br><br>
-        
-        <label for="design">Upload Design File:</label><br>
-        <input type="file" id="design" name="design" accept="image/*"><br><br>
-        
-        <button type="submit">Submit</button>
+    <!-- PNG Image Below Title -->
+    <img src="/static/CDLogoWithC.png" alt="Logo">
+    <form action="/" method="post" enctype="multipart/form-data">
+        <label for="design">Upload Your Design:</label>
+        <input type="file" id="design" name="design" required>
+        <button type="submit">Generate Mockup</button>
     </form>
 </body>
 </html>

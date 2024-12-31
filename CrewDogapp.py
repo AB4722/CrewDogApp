@@ -90,17 +90,24 @@ def upload_file():
                 # Resize the design to fit proportionally within the background
                 bg_width, bg_height = background.size
                 design_aspect_ratio = design.width / design.height
-                design_width = int(bg_width * 0.3)  # Resize design to 30% of background width
+
+                # Define offsets
+                extra_offset_mm_left = 5  # Additional offset to the left in millimeters
+                extra_offset_mm_down = 10  # Additional offset downward in millimeters
+
+                # Convert offsets to pixels
+                dpi = 300  # Assuming 300 DPI
+                offset_px_left = int(((10 + extra_offset_mm_left) / 25.4) * dpi)
+                offset_px_down = int(((10 + extra_offset_mm_down) / 25.4) * dpi)
+
+                # Resize the design to 90% of its original calculated size
+                design_width = int(bg_width * 0.27)  # 30% reduced by 10%
                 design_height = int(design_width / design_aspect_ratio)
                 design = design.resize((design_width, design_height), Image.ANTIALIAS)
 
-                # Calculate position to place the design in the top-right corner, 10mm to the left
-                offset_mm = 10  # Offset in millimeters
-                dpi = 300  # Assuming 300 DPI
-                offset_px = int((offset_mm / 25.4) * dpi)
-
-                x = bg_width - design_width - offset_px  # Offset 10mm from the right
-                y = offset_px  # Offset slightly down from the top (default margin 10mm)
+                # Adjust position
+                x = bg_width - design_width - offset_px_left
+                y = offset_px_down
 
                 # Paste the design onto the background
                 composite = background.copy()

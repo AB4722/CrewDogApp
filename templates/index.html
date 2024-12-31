@@ -19,14 +19,14 @@
 
         h1 {
             font-size: 3rem;
-            margin-bottom: 20px;
+            margin: 20px 0;
             text-align: center;
         }
 
         img {
-            margin-top: 20px;
             max-width: 80%;
             height: auto;
+            margin-bottom: 20px;
         }
 
         form {
@@ -59,13 +59,15 @@
     </style>
 </head>
 <body>
-    <h1>Mockup Maker</h1>
-    <!-- PNG Image Below Title -->
+    <!-- PNG Image at the Top -->
     <img src="/static/CDLogoWithC.png" alt="Logo">
+    <!-- Title Below the PNG -->
+    <h1>Mockup Maker</h1>
     <form action="/" method="post" enctype="multipart/form-data">
-        <label for="design">Upload Your Design:</label>
+        <!-- Updated Label and Button Text -->
+        <label for="design">Upload Design PNG:</label>
         <input type="file" id="design" name="design" required>
-        <button type="submit">Generate Mockup</button>
+        <button type="submit">Generate Crewneck Mockup</button>
     </form>
 </body>
 </html>

@@ -63,18 +63,15 @@ def upload_file():
         if not os.path.exists(crewneck_folder):
             abort(400, description="Crewneck backgrounds not found.")
 
-        # Get one crewneck file
+        # Get the first two Crewneck files
         crewneck_files = [
             os.path.join(crewneck_folder, f)
             for f in os.listdir(crewneck_folder)
             if os.path.isfile(os.path.join(crewneck_folder, f))
-        ]
+        ][:2]  # Select only the first two files
 
         if not crewneck_files:
             abort(400, description="No Crewneck files found.")
-
-        # Use the first file for testing
-        crewneck_file_path = crewneck_files[0]
 
         # Get the uploaded design file
         design_file = request.files["design"]
@@ -83,32 +80,38 @@ def upload_file():
         design_path = os.path.join(upload_dir, "uploaded_design.png")
         design_file.save(design_path)
 
-        # Load the Crewneck background and the design
-        with Image.open(crewneck_file_path).convert("RGBA") as background, Image.open(design_path).convert("RGBA") as design:
-            # Resize the design to fit proportionally within the background
-            bg_width, bg_height = background.size
-            design_aspect_ratio = design.width / design.height
-            design_width = int(bg_width * 0.3)  # Resize design to 30% of background width
-            design_height = int(design_width / design_aspect_ratio)
-            design = design.resize((design_width, design_height), Image.ANTIALIAS)
+        # Output directory for modified images
+        output_dir = os.path.join(base_path, "output")
+        os.makedirs(output_dir, exist_ok=True)
 
-            # Calculate position to center the design on the background
-            x = (bg_width - design_width) // 2
-            y = (bg_height - design_height) // 2
+        # Process each Crewneck file
+        for crewneck_file_path in crewneck_files:
+            with Image.open(crewneck_file_path).convert("RGBA") as background, Image.open(design_path).convert("RGBA") as design:
+                # Resize the design to fit proportionally within the background
+                bg_width, bg_height = background.size
+                design_aspect_ratio = design.width / design.height
+                design_width = int(bg_width * 0.3)  # Resize design to 30% of background width
+                design_height = int(design_width / design_aspect_ratio)
+                design = design.resize((design_width, design_height), Image.ANTIALIAS)
 
-            # Paste the design onto the background
-            composite = background.copy()
-            composite.paste(design, (x, y), design)
+                # Calculate position to center the design on the background
+                x = (bg_width - design_width) // 2
+                y = (bg_height - design_height) // 2
 
-            # Save the modified image
-            modified_file_path = os.path.join(base_path, "output_design.png")
-            composite.save(modified_file_path, "PNG")
+                # Paste the design onto the background
+                composite = background.copy()
+                composite.paste(design, (x, y), design)
 
-        # Send the modified image back to the user
-        return send_file(modified_file_path, as_attachment=True)
+                # Save the modified image
+                output_file_name = f"output_{os.path.basename(crewneck_file_path)}"
+                composite.save(os.path.join(output_dir, output_file_name), "PNG")
 
-    # Render the HTML form
-    return render_template("index.html")
+        # Create a zip file of the results
+        zip_path = os.path.join(base_path, "output.zip")
+        shutil.make_archive(zip_path.replace(".zip", ""), "zip", output_dir)
+
+        # Send the zip file to the user
+        return send_file(zip_path, as_attachment=True)
 
     # Render the HTML form
     return render_template("index.html")

@@ -76,31 +76,39 @@ def upload_file():
         # Use the first file for testing
         crewneck_file_path = crewneck_files[0]
 
-        # Load the image and add a black square
-        with Image.open(crewneck_file_path).convert("RGBA") as img:
-            draw = Image.new("RGBA", img.size, (0, 0, 0, 0))
-            width, height = img.size
+        # Get the uploaded design file
+        design_file = request.files["design"]
+        upload_dir = os.path.join(base_path, "uploads")
+        os.makedirs(upload_dir, exist_ok=True)
+        design_path = os.path.join(upload_dir, "uploaded_design.png")
+        design_file.save(design_path)
 
-            # Define square size and position
-            square_size = int(min(width, height) * 0.3)  # 30% of the smaller dimension
-            x0 = (width - square_size) // 2
-            y0 = (height - square_size) // 2
-            x1 = x0 + square_size
-            y1 = y0 + square_size
+        # Load the Crewneck background and the design
+        with Image.open(crewneck_file_path).convert("RGBA") as background, Image.open(design_path).convert("RGBA") as design:
+            # Resize the design to fit proportionally within the background
+            bg_width, bg_height = background.size
+            design_aspect_ratio = design.width / design.height
+            design_width = int(bg_width * 0.3)  # Resize design to 30% of background width
+            design_height = int(design_width / design_aspect_ratio)
+            design = design.resize((design_width, design_height), Image.ANTIALIAS)
 
-            # Draw the black square
-            square = Image.new("RGBA", (square_size, square_size), (0, 0, 0, 255))
-            draw.paste(square, (x0, y0))
+            # Calculate position to center the design on the background
+            x = (bg_width - design_width) // 2
+            y = (bg_height - design_height) // 2
 
-            # Composite the image
-            img_with_square = Image.alpha_composite(img, draw)
+            # Paste the design onto the background
+            composite = background.copy()
+            composite.paste(design, (x, y), design)
 
             # Save the modified image
-            modified_file_path = os.path.join(base_path, "modified_crewneck.png")
-            img_with_square.save(modified_file_path, "PNG")
+            modified_file_path = os.path.join(base_path, "output_design.png")
+            composite.save(modified_file_path, "PNG")
 
         # Send the modified image back to the user
         return send_file(modified_file_path, as_attachment=True)
+
+    # Render the HTML form
+    return render_template("index.html")
 
     # Render the HTML form
     return render_template("index.html")

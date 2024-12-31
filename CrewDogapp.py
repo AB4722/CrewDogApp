@@ -94,8 +94,8 @@ def upload_file():
             design_aspect_ratio = design.width / design.height
 
             # Define offsets
-            extra_offset_mm_left = 5  # Additional offset to the left in millimeters
-            extra_offset_mm_down = 0  # Additional offset downward in millimeters
+            extra_offset_mm_left = 4  # Additional offset to the left in millimeters
+            extra_offset_mm_down = -5  # Additional offset downward in millimeters
 
             # Convert offsets to pixels
             dpi = 300  # Assuming 300 DPI

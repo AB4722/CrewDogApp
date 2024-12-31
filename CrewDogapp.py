@@ -60,27 +60,23 @@ def upload_file():
         # Get user inputs
         collection_name = request.form.get("collection_name", "DefaultCollection")
 
-        # Define the folders for Crewneck and Hoodie backgrounds
+        # Define the folders for Crewneck backgrounds
         crewneck_folder = os.path.join(base_path, "backgrounds", "Crewneck")
-        hoodie_folder = os.path.join(base_path, "backgrounds", "Hoodie")
 
-        # Check if background folders exist
+        # Check if background folder exists
         if not os.path.exists(crewneck_folder):
             abort(400, description="Crewneck backgrounds not found.")
-        if not os.path.exists(hoodie_folder):
-            abort(400, description="Hoodie backgrounds not found.")
 
-        # Get the background files
+        # Get the background files (use only one file for testing)
         crewneck_files = [
             os.path.join(crewneck_folder, f)
             for f in os.listdir(crewneck_folder)
             if os.path.isfile(os.path.join(crewneck_folder, f))
         ]
-        hoodie_files = [
-            os.path.join(hoodie_folder, f)
-            for f in os.listdir(hoodie_folder)
-            if os.path.isfile(os.path.join(hoodie_folder, f))
-        ]
+
+        # Use the first file for testing
+        if crewneck_files:
+            crewneck_files = [crewneck_files[0]]
 
         # Get the design file
         design_file = request.files["design"]
@@ -89,18 +85,13 @@ def upload_file():
         design_path = os.path.join(upload_dir, "design.png")
         design_file.save(design_path)
 
-        # Ensure output directories exist
+        # Ensure output directory exists
         output_dir = os.path.join(base_path, "output")
         crewneck_output_dir = os.path.join(output_dir, "Crewneck")
-        hoodie_output_dir = os.path.join(output_dir, "Hoodie")
         os.makedirs(crewneck_output_dir, exist_ok=True)
-        os.makedirs(hoodie_output_dir, exist_ok=True)
 
         # Process Crewneck files
         center_design_on_images(design_path, crewneck_files, crewneck_output_dir, collection_name)
-
-        # Process Hoodie files
-        center_design_on_images(design_path, hoodie_files, hoodie_output_dir, collection_name)
 
         # Create the zip file
         zip_path = os.path.join(base_path, "output.zip")

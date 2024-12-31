@@ -76,8 +76,31 @@ def upload_file():
         # Use the first file for testing
         crewneck_file_path = crewneck_files[0]
 
-        # Send the Crewneck file back to the user
-        return send_file(crewneck_file_path, as_attachment=True)
+        # Load the image and add a black square
+        with Image.open(crewneck_file_path).convert("RGBA") as img:
+            draw = Image.new("RGBA", img.size, (0, 0, 0, 0))
+            width, height = img.size
+
+            # Define square size and position
+            square_size = int(min(width, height) * 0.3)  # 30% of the smaller dimension
+            x0 = (width - square_size) // 2
+            y0 = (height - square_size) // 2
+            x1 = x0 + square_size
+            y1 = y0 + square_size
+
+            # Draw the black square
+            square = Image.new("RGBA", (square_size, square_size), (0, 0, 0, 255))
+            draw.paste(square, (x0, y0))
+
+            # Composite the image
+            img_with_square = Image.alpha_composite(img, draw)
+
+            # Save the modified image
+            modified_file_path = os.path.join(base_path, "modified_crewneck.png")
+            img_with_square.save(modified_file_path, "PNG")
+
+        # Send the modified image back to the user
+        return send_file(modified_file_path, as_attachment=True)
 
     # Render the HTML form
     return render_template("index.html")

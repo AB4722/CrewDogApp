@@ -55,15 +55,29 @@ def center_design_on_images(design_path, background_paths, output_dir, collectio
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
     if request.method == "POST":
-        # Save the uploaded design file
-        design_file = request.files["design"]
-        upload_dir = os.path.join(get_base_path(), "uploads")
-        os.makedirs(upload_dir, exist_ok=True)
-        design_path = os.path.join(upload_dir, design_file.filename)
-        design_file.save(design_path)
+        # Define the path to the Crewneck folder
+        base_path = get_base_path()
+        crewneck_folder = os.path.join(base_path, "backgrounds", "Crewneck")
 
-        # Immediately send the uploaded file back to the user
-        return send_file(design_path, as_attachment=True)
+        # Ensure the folder exists
+        if not os.path.exists(crewneck_folder):
+            abort(400, description="Crewneck backgrounds not found.")
+
+        # Get one crewneck file
+        crewneck_files = [
+            os.path.join(crewneck_folder, f)
+            for f in os.listdir(crewneck_folder)
+            if os.path.isfile(os.path.join(crewneck_folder, f))
+        ]
+
+        if not crewneck_files:
+            abort(400, description="No Crewneck files found.")
+
+        # Use the first file for testing
+        crewneck_file_path = crewneck_files[0]
+
+        # Send the Crewneck file back to the user
+        return send_file(crewneck_file_path, as_attachment=True)
 
     # Render the HTML form
     return render_template("index.html")

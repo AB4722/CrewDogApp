@@ -54,21 +54,21 @@ def upload_file():
             design_aspect_ratio = design.width / design.height
 
             # Define offsets
-            extra_offset_mm_right = 5  # Additional offset to the right in millimeters
+            extra_offset_mm_left = 2  # Move 2mm to the left
             extra_offset_mm_down = 10  # Additional offset downward in millimeters
 
             # Convert offsets to pixels
             dpi = 300  # Assuming 300 DPI
-            offset_px_right = int((extra_offset_mm_right / 25.4) * dpi)
+            offset_px_left = int((extra_offset_mm_left / 25.4) * dpi)
             offset_px_down = int((extra_offset_mm_down / 25.4) * dpi)
 
-            # Resize the design to 90% of its original calculated size
-            design_width = int(bg_width * 0.27)  # 30% reduced by 10%
+            # Resize the design to 85% of its original calculated size
+            design_width = int(bg_width * 0.255)  # 30% reduced to 25.5%
             design_height = int(design_width / design_aspect_ratio)
             design = design.resize((design_width, design_height), Image.ANTIALIAS)
 
             # Adjust position
-            x = bg_width - design_width - offset_px_right
+            x = bg_width - design_width - offset_px_left
             y = offset_px_down
 
             # Paste the design onto the background

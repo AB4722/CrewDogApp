@@ -55,51 +55,17 @@ def center_design_on_images(design_path, background_paths, output_dir, collectio
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
     if request.method == "POST":
-        base_path = get_base_path()
-
-        # Get user inputs
-        collection_name = request.form.get("collection_name", "DefaultCollection")
-
-        # Define the folders for Crewneck backgrounds
-        crewneck_folder = os.path.join(base_path, "backgrounds", "Crewneck")
-
-        # Check if background folder exists
-        if not os.path.exists(crewneck_folder):
-            abort(400, description="Crewneck backgrounds not found.")
-
-        # Get the background files (use only one file for testing)
-        crewneck_files = [
-            os.path.join(crewneck_folder, f)
-            for f in os.listdir(crewneck_folder)
-            if os.path.isfile(os.path.join(crewneck_folder, f))
-        ]
-
-        # Use the first file for testing
-        if crewneck_files:
-            crewneck_files = [crewneck_files[0]]
-
-        # Get the design file
+        # Save the uploaded design file
         design_file = request.files["design"]
-        upload_dir = os.path.join(base_path, "uploads")
+        upload_dir = os.path.join(get_base_path(), "uploads")
         os.makedirs(upload_dir, exist_ok=True)
-        design_path = os.path.join(upload_dir, "design.png")
+        design_path = os.path.join(upload_dir, design_file.filename)
         design_file.save(design_path)
 
-        # Ensure output directory exists
-        output_dir = os.path.join(base_path, "output")
-        crewneck_output_dir = os.path.join(output_dir, "Crewneck")
-        os.makedirs(crewneck_output_dir, exist_ok=True)
+        # Immediately send the uploaded file back to the user
+        return send_file(design_path, as_attachment=True)
 
-        # Process Crewneck files
-        center_design_on_images(design_path, crewneck_files, crewneck_output_dir, collection_name)
-
-        # Create the zip file
-        zip_path = os.path.join(base_path, "output.zip")
-        shutil.make_archive(zip_path.replace(".zip", ""), "zip", output_dir)
-
-        # Send the zip file to the user
-        return send_file(zip_path, as_attachment=True)
-
+    # Render the HTML form
     return render_template("index.html")
 
 if __name__ == "__main__":

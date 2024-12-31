@@ -94,9 +94,9 @@ def upload_file():
                 design_height = int(design_width / design_aspect_ratio)
                 design = design.resize((design_width, design_height), Image.ANTIALIAS)
 
-                # Calculate position to center the design on the background
-                x = (bg_width - design_width) // 2
-                y = (bg_height - design_height) // 2
+                # Calculate position to place the design in the bottom-right corner
+                x = bg_width - design_width - int(bg_width * 0.05)  # Add a 5% margin
+                y = bg_height - design_height - int(bg_height * 0.05)  # Add a 5% margin
 
                 # Paste the design onto the background
                 composite = background.copy()

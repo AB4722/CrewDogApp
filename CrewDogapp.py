@@ -66,9 +66,9 @@ def upload_file():
                 design_width = int(bg_width * 0.255 * 0.9)  # 10% smaller
                 design_height = int(design_width / design_aspect_ratio)
 
-                # Adjusted Side Placement: Higher and further to the right
-                center_x = int(bg_width * 0.75)  # Move further to the right
-                center_y = int(bg_height * 0.30)  # Move higher
+                # Adjusted Side Placement: Move 5% left and 2% down
+                center_x = int(bg_width * 0.70)  # 75% - 5% = 70%
+                center_y = int(bg_height * 0.32)  # 30% + 2% = 32%
                 x = center_x - (design_width // 2)
                 y = center_y - (design_height // 2)
             elif print_type == "front":

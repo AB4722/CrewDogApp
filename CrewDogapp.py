@@ -51,13 +51,18 @@ def upload_file():
         os.makedirs(output_dir, exist_ok=True)
 
         # Process the selected garment file
-        with Image.open(garment_file_path).convert("RGBA") as background, Image.open(design_path).convert("RGBA") as design:
-            # Preserve DPI
+        with Image.open(garment_file_path) as background, Image.open(design_path) as design:
+            # Preserve DPI or fallback to default
             bg_dpi = background.info.get("dpi", (300, 300))
-            design_aspect_ratio = design.width / design.height
+            design_dpi = design.info.get("dpi", (300, 300))
+
+            # Convert both images to RGBA
+            background = background.convert("RGBA")
+            design = design.convert("RGBA")
 
             # Get background dimensions
             bg_width, bg_height = background.size
+            design_aspect_ratio = design.width / design.height
 
             # Determine placement and size based on selected print type
             print_type = request.form.get("print_type")
@@ -84,10 +89,10 @@ def upload_file():
                 x = (bg_width - design_width) // 2
                 y = (bg_height - design_height) // 2
 
-            # Resize the design
+            # Resize the design with high-quality resampling
             design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)
 
-            # Paste the design onto the background
+            # Paste the design onto the background with transparency support
             composite = background.copy()
             composite.paste(design, (x, y), design)
 

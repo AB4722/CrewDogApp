@@ -31,18 +31,14 @@
         form {
             margin-top: 20px;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 50px; /* Space between sections */
-        }
-
-        .section {
-            text-align: left;
-            max-width: 300px;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
 
         .checkbox-container {
             margin-bottom: 20px;
+            text-align: left;
         }
 
         .checkbox-container label {
@@ -70,17 +66,6 @@
             background-color: #4682b4;
         }
     </style>
-    <script>
-        // JavaScript to handle "All of the Above" functionality
-        function selectAllGarments() {
-            const garmentCheckboxes = document.querySelectorAll('input[name="garment"]');
-            garmentCheckboxes.forEach(checkbox => {
-                if (checkbox.value !== "all") {
-                    checkbox.checked = true;
-                }
-            });
-        }
-    </script>
 </head>
 <body>
     <!-- PNG Image at the Top -->
@@ -88,54 +73,21 @@
     <!-- Title Below the PNG -->
     <h1>Mockup Maker</h1>
     <form action="/" method="post" enctype="multipart/form-data">
-        <!-- Garments Section -->
-        <div class="section">
-            <h2 class="section-title">Select Garments</h2>
-            <div class="checkbox-container">
-                <label><input type="checkbox" name="garment" value="crewneck"> Crewneck</label>
-                <label><input type="checkbox" name="garment" value="hoodie"> Hoodie</label>
-                <label><input type="checkbox" name="garment" value="tshirt"> T-Shirt</label>
-                <label>
-                    <input type="checkbox" name="garment" value="all" onclick="selectAllGarments()"> All of the Above
-                </label>
-            </div>
-        </div>
-
-        <!-- Colours Section -->
-        <div class="section">
-            <h2 class="section-title">Colours</h2>
-            <div class="checkbox-container">
-                <label><input type="checkbox" name="colour" value="standard"> Standard Colours</label>
-            </div>
-            <h3>Additional Colours</h3>
-            <div class="checkbox-container">
-                <label><input type="checkbox" name="colour" value="pink"> Pink</label>
-                <label><input type="checkbox" name="colour" value="red"> Red</label>
-                <label><input type="checkbox" name="colour" value="blue"> Blue</label>
-                <label><input type="checkbox" name="colour" value="yellow"> Yellow</label>
-            </div>
-        </div>
-
-        <!-- Print Type Section -->
-        <div class="section">
-            <h2 class="section-title">Print Type</h2>
-            <div class="checkbox-container">
-                <label><input type="checkbox" name="print_type" value="front"> Front Centre</label>
-                <label><input type="checkbox" name="print_type" value="rear"> Rear Centre</label>
-                <label><input type="checkbox" name="print_type" value="side"> Side</label>
-            </div>
+        <!-- Garment Selection -->
+        <div class="checkbox-container">
+            <h2 class="section-title">Select Garment</h2>
+            <label><input type="radio" name="garment" value="crewneck" required> Crewneck</label>
+            <label><input type="radio" name="garment" value="hoodie"> Hoodie</label>
         </div>
 
         <!-- Upload Design Section -->
-        <div style="width: 100%; text-align: center; margin-top: 20px;">
+        <div style="width: 100%; text-align: center;">
             <label for="design">Upload Design PNG:</label>
             <input type="file" id="design" name="design" required>
         </div>
 
         <!-- Generate Image Button -->
-        <div style="width: 100%; text-align: center; margin-top: 20px;">
-            <button type="submit">Generate Image</button>
-        </div>
+        <button type="submit">Generate Image</button>
     </form>
 </body>
 </html>

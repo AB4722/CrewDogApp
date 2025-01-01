@@ -14,26 +14,30 @@ def get_base_path():
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
     if request.method == "POST":
-        # Define the path to the Crewneck folder
+        # Get the selected garment type
+        garment_type = request.form.get("garment")
+        if not garment_type:
+            abort(400, description="No garment type selected.")
+
+        # Define the path to the garment folder
         base_path = get_base_path()
-        crewneck_folder = os.path.join(base_path, "backgrounds", "Crewneck")
+        garment_folder = os.path.join(base_path, "backgrounds", garment_type.capitalize())
 
         # Ensure the folder exists
-        if not os.path.exists(crewneck_folder):
-            abort(400, "Crewneck backgrounds not found.")
+        if not os.path.exists(garment_folder):
+            abort(400, description=f"{garment_type.capitalize()} backgrounds not found.")
 
-        # Get valid Crewneck files (ignore .DS_Store and non-PNG files)
-        crewneck_files = [
-            os.path.join(crewneck_folder, f)
-            for f in os.listdir(crewneck_folder)
-            if os.path.isfile(os.path.join(crewneck_folder, f)) and f.lower().endswith(".png")
+        # Get the first garment file
+        garment_files = [
+            os.path.join(garment_folder, f)
+            for f in os.listdir(garment_folder)
+            if os.path.isfile(os.path.join(garment_folder, f))
         ]
 
-        if not crewneck_files:
-            abort(400, "No valid Crewneck PNG files found.")
+        if not garment_files:
+            abort(400, description=f"No {garment_type.capitalize()} files found.")
 
-        # Select the first Crewneck file (for demonstration)
-        crewneck_file_path = crewneck_files[0]
+        garment_file_path = garment_files[0]
 
         # Get the uploaded design file
         design_file = request.files["design"]
@@ -46,36 +50,23 @@ def upload_file():
         output_dir = os.path.join(base_path, "output")
         os.makedirs(output_dir, exist_ok=True)
 
-        # Process the Crewneck file
-        with Image.open(crewneck_file_path).convert("RGBA") as background, Image.open(design_path).convert("RGBA") as design:
-            # Resize the design to fit proportionally within the background
+        # Process the selected garment file
+        with Image.open(garment_file_path).convert("RGBA") as background, Image.open(design_path).convert("RGBA") as design:
+            # Resize and position the design (for simplicity, placing it at the center here)
             bg_width, bg_height = background.size
             design_aspect_ratio = design.width / design.height
-
-            # Define offsets (adjusted for DPI and position)
-            extra_offset_mm_left = 11  # Move 11mm to the left
-            extra_offset_mm_down = 8  # Move 8mm down
-
-            # Convert offsets to pixels (300 DPI)
-            dpi = 300
-            offset_px_left = int((extra_offset_mm_left / 25.4) * dpi)
-            offset_px_down = int((extra_offset_mm_down / 25.4) * dpi)
-
-            # Resize the design to 85% of its calculated size
-            design_width = int(bg_width * 0.255)  # 25.5% of the background width
+            design_width = int(bg_width * 0.3)  # Scale design to 30% of background width
             design_height = int(design_width / design_aspect_ratio)
-            design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)
+            design = design.resize((design_width, design_height), Image.ANTIALIAS)
 
-            # Adjust position
-            x = bg_width - design_width - offset_px_left
-            y = offset_px_down
+            x = (bg_width - design_width) // 2
+            y = (bg_height - design_height) // 2
 
-            # Paste the design onto the background
             composite = background.copy()
             composite.paste(design, (x, y), design)
 
             # Save the modified image
-            output_file_name = f"output_{os.path.basename(crewneck_file_path)}"
+            output_file_name = f"output_{os.path.basename(garment_file_path)}"
             output_file_path = os.path.join(output_dir, output_file_name)
             composite.save(output_file_path, "PNG")
 

@@ -54,13 +54,10 @@ def upload_file():
         with Image.open(garment_file_path).convert("RGBA") as background, Image.open(design_path).convert("RGBA") as design:
             # Preserve DPI
             bg_dpi = background.info.get("dpi", (300, 300))
-            design_dpi = design.info.get("dpi", (300, 300))
+            design_aspect_ratio = design.width / design.height
 
             # Resize the design proportionally to fit on the garment
             bg_width, bg_height = background.size
-            design_aspect_ratio = design.width / design.height
-
-            # Resize the design to 85% of its original size
             design_width = int(bg_width * 0.255)
             design_height = int(design_width / design_aspect_ratio)
             design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)
@@ -68,9 +65,11 @@ def upload_file():
             # Determine placement based on selected print type
             print_type = request.form.get("print_type")
             if print_type == "side":
-                # Place the center of the design at 55% of width and height
-                x = int(bg_width * 0.55 - design_width / 2)
-                y = int(bg_height * 0.55 - design_height / 2)
+                # Adjusted Side Placement: Higher and to the right
+                center_x = int(bg_width * 0.65)  # Shift further to the right
+                center_y = int(bg_height * 0.40)  # Shift higher
+                x = center_x - (design_width // 2)
+                y = center_y - (design_height // 2)
             elif print_type == "front":
                 # Place the design at the center of the background
                 x = (bg_width - design_width) // 2

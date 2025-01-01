@@ -61,15 +61,13 @@ def upload_file():
             design_height = int(design_width / design_aspect_ratio)
             design = design.resize((design_width, design_height), Image.ANTIALIAS)
 
-            # Position the design in the top-right corner
-            dpi = 300
-            offset_mm_top = 5  # 5mm down
-            offset_mm_right = 10  # 10mm to the left of the right edge
-            offset_px_top = int((offset_mm_top / 25.4) * dpi)
-            offset_px_right = int((offset_mm_right / 25.4) * dpi)
+            # Center the design at 55% of the background's height and width
+            center_x = int(bg_width * 0.55)
+            center_y = int(bg_height * 0.55)
 
-            x = bg_width - design_width - offset_px_right
-            y = offset_px_top
+            # Calculate top-left coordinates for the design
+            x = center_x - (design_width // 2)
+            y = center_y - (design_height // 2)
 
             # Paste the design onto the background
             composite = background.copy()

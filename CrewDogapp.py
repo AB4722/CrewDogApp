@@ -52,7 +52,7 @@ def upload_file():
 
         # Process the selected garment file
         with Image.open(garment_file_path).convert("RGBA") as background, Image.open(design_path).convert("RGBA") as design:
-            # Resize and position the design
+            # Resize the design proportionally to fit on the garment
             bg_width, bg_height = background.size
             design_aspect_ratio = design.width / design.height
 
@@ -61,16 +61,20 @@ def upload_file():
             design_height = int(design_width / design_aspect_ratio)
             design = design.resize((design_width, design_height), Image.ANTIALIAS)
 
-            # Default placement (centered)
-            x = (bg_width - design_width) // 2
-            y = (bg_height - design_height) // 2
-
-            # Adjust placement based on selected print type
+            # Determine placement based on selected print type
             print_type = request.form.get("print_type")
             if print_type == "side":
-                # Position at 55% height and width
+                # Place the center of the design at 55% of width and height
                 x = int(bg_width * 0.55 - design_width / 2)
                 y = int(bg_height * 0.55 - design_height / 2)
+            elif print_type == "front":
+                # Place the design at the center of the background
+                x = (bg_width - design_width) // 2
+                y = (bg_height - design_height) // 2
+            else:
+                # Default to center if no valid print type is provided
+                x = (bg_width - design_width) // 2
+                y = (bg_height - design_height) // 2
 
             # Paste the design onto the background
             composite = background.copy()

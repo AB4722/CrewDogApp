@@ -6,7 +6,7 @@
     <title>Mockup Maker</title>
     <style>
         body {
-            background-color: #f9f9f9; /* Light gray background for the entire page */
+            background-color: #f9f9f9; /* Light gray background */
             color: black;
             font-family: Arial, sans-serif;
             margin: 0;
@@ -38,8 +38,8 @@
         }
 
         .section {
-            background-color: #ffffff; /* White background for each section */
-            border: 1px solid #ddd; /* Light border for separation */
+            background-color: #ffffff; /* White background */
+            border: 1px solid #ddd; /* Light border */
             border-radius: 10px; /* Rounded corners */
             padding: 20px;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
@@ -51,14 +51,19 @@
             text-decoration: underline;
         }
 
-        .checkbox-container {
+        .checkbox-container, .buttons-container {
             text-align: left;
         }
 
-        .checkbox-container label {
+        .checkbox-container label, .buttons-container button {
             font-size: 1.2rem;
-            display: block;
             margin-bottom: 10px;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         input[type="file"] {
@@ -75,7 +80,6 @@
             font-size: 1rem;
             cursor: pointer;
             border-radius: 5px;
-            margin-top: 10px;
         }
 
         button:hover {
@@ -104,8 +108,12 @@
         <div class="section">
             <h2 class="section-title">Select Garments</h2>
             <div class="checkbox-container">
-                <label><input type="radio" name="garment" value="crewneck" required> Crewneck</label>
-                <label><input type="radio" name="garment" value="hoodie"> Hoodie</label>
+                <label><input type="checkbox" name="garment" value="crewneck"> Crewneck</label>
+                <label><input type="checkbox" name="garment" value="hoodie"> Hoodie</label>
+                <label><input type="checkbox" name="garment" value="tshirt"> T-Shirt</label>
+                <label>
+                    <input type="checkbox" name="garment" value="all" onclick="selectAllGarments()"> All of the Above
+                </label>
             </div>
         </div>
 

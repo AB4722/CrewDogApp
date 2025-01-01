@@ -15,7 +15,7 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            text-align: center; /* Center all text */
+            text-align: center;
         }
 
         h1 {
@@ -36,11 +36,33 @@
         label {
             font-size: 1.2rem;
             display: block;
-            margin-bottom: 15px; /* Add space below label */
+            margin-bottom: 15px;
         }
 
         input[type="file"] {
-            margin: 10px 0 20px 0; /* Add space below the file input */
+            margin: 10px 0 20px 0;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .select-button {
+            background-color: #1e90ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .select-button:hover {
+            background-color: #4682b4;
         }
 
         button {
@@ -64,10 +86,20 @@
     <!-- Title Below the PNG -->
     <h1>Mockup Maker</h1>
     <form action="/" method="post" enctype="multipart/form-data">
-        <!-- Updated Label and Button Text -->
+        <!-- Upload File Section -->
         <label for="design">Upload Design PNG:</label>
         <input type="file" id="design" name="design" required>
-        <button type="submit">Generate Crewneck Mockup</button>
+
+        <!-- Buttons for Selection -->
+        <div class="buttons-container">
+            <button type="button" class="select-button">Crewneck</button>
+            <button type="button" class="select-button">Hoodie</button>
+            <button type="button" class="select-button">T-Shirt</button>
+            <button type="button" class="select-button">All of the Above</button>
+        </div>
+
+        <!-- Generate Image Button -->
+        <button type="submit">Generate Image</button>
     </form>
 </body>
 </html>

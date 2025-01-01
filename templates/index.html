@@ -23,7 +23,7 @@
         }
 
         img {
-            max-width: 80%;
+            max-width: 70%; /* Slightly smaller CrewDog PNG */
             height: auto;
             margin-bottom: 20px;
         }
@@ -70,6 +70,14 @@
             margin-bottom: 10px;
         }
 
+        .additional-colours-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-align: left; /* Ensure no indentation */
+        }
+
         input[type="file"] {
             margin-top: 10px;
             margin-bottom: 20px;
@@ -90,14 +98,10 @@
         }
     </style>
     <script>
-        // JavaScript to handle "All of the Above" functionality
-        function selectAllGarments() {
-            const garmentCheckboxes = document.querySelectorAll('input[name="garment"]');
-            garmentCheckboxes.forEach(checkbox => {
-                if (checkbox.value !== "all") {
-                    checkbox.checked = true;
-                }
-            });
+        // JavaScript to handle "Select All" functionality
+        function selectAllPrintTypes() {
+            const printTypeCheckboxes = document.querySelectorAll('input[name="print_type"]');
+            printTypeCheckboxes.forEach(checkbox => checkbox.checked = true);
         }
     </script>
 </head>
@@ -128,7 +132,7 @@
                 <div class="checkbox-container">
                     <label><input type="checkbox" name="colour" value="standard"> Standard Colours</label>
                 </div>
-                <h3>Additional Colours</h3>
+                <p class="additional-colours-title">Additional Colours</p>
                 <div class="checkbox-container">
                     <label><input type="checkbox" name="colour" value="pink"> Pink</label>
                     <label><input type="checkbox" name="colour" value="red"> Red</label>
@@ -145,6 +149,7 @@
                     <label><input type="checkbox" name="print_type" value="rear"> Rear Centre</label>
                     <label><input type="checkbox" name="print_type" value="side"> Side</label>
                 </div>
+                <button type="button" onclick="selectAllPrintTypes()">Select All Print Types</button>
             </div>
         </div>
 

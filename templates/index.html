@@ -31,21 +31,19 @@
 
         form {
             margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 50px; /* Space between Garments and Colours sections */
         }
 
-        label {
-            font-size: 1.2rem;
-            display: block;
-            margin-bottom: 15px;
-        }
-
-        input[type="file"] {
-            margin: 10px 0 20px 0;
+        .section {
+            text-align: left;
+            max-width: 300px;
         }
 
         .checkbox-container {
             margin-bottom: 20px;
-            text-align: left; /* Align checkboxes to the left */
         }
 
         .checkbox-container label {
@@ -65,20 +63,6 @@
             justify-content: center;
             gap: 10px;
             margin-bottom: 20px;
-        }
-
-        .select-button {
-            background-color: #1e90ff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .select-button:hover {
-            background-color: #4682b4;
         }
 
         button {
@@ -106,31 +90,36 @@
         <label for="design">Upload Design PNG:</label>
         <input type="file" id="design" name="design" required>
 
-        <!-- Selection Options -->
-        <h2 class="section-title">Select Garments</h2>
-        <div class="checkbox-container">
-            <label><input type="checkbox" name="garment" value="crewneck"> Crewneck</label>
-            <label><input type="checkbox" name="garment" value="hoodie"> Hoodie</label>
-            <label><input type="checkbox" name="garment" value="tshirt"> T-Shirt</label>
-            <label><input type="checkbox" name="garment" value="all"> All of the Above</label>
+        <!-- Garment Selection Section -->
+        <div class="section">
+            <h2 class="section-title">Select Garments</h2>
+            <div class="checkbox-container">
+                <label><input type="checkbox" name="garment" value="crewneck"> Crewneck</label>
+                <label><input type="checkbox" name="garment" value="hoodie"> Hoodie</label>
+                <label><input type="checkbox" name="garment" value="tshirt"> T-Shirt</label>
+                <label><input type="checkbox" name="garment" value="all"> All of the Above</label>
+            </div>
         </div>
 
         <!-- Colours Section -->
-        <h2 class="section-title">Standard Colours</h2>
-        <div class="buttons-container">
-            <button type="button" class="select-button">Standard Colours</button>
-        </div>
-
-        <h2 class="section-title">Additional Colours</h2>
-        <div class="buttons-container">
-            <button type="button" class="select-button">Pink</button>
-            <button type="button" class="select-button">Red</button>
-            <button type="button" class="select-button">Blue</button>
-            <button type="button" class="select-button">Yellow</button>
+        <div class="section">
+            <h2 class="section-title">Colours</h2>
+            <div class="checkbox-container">
+                <label><input type="checkbox" name="colour" value="standard"> Standard Colours</label>
+            </div>
+            <h3>Additional Colours</h3>
+            <div class="checkbox-container">
+                <label><input type="checkbox" name="colour" value="pink"> Pink</label>
+                <label><input type="checkbox" name="colour" value="red"> Red</label>
+                <label><input type="checkbox" name="colour" value="blue"> Blue</label>
+                <label><input type="checkbox" name="colour" value="yellow"> Yellow</label>
+            </div>
         </div>
 
         <!-- Generate Image Button -->
-        <button type="submit">Generate Image</button>
+        <div style="width: 100%; text-align: center;">
+            <button type="submit">Generate Image</button>
+        </div>
     </form>
 </body>
 </html>

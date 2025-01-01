@@ -65,9 +65,9 @@ def upload_file():
             # Determine placement based on selected print type
             print_type = request.form.get("print_type")
             if print_type == "side":
-                # Adjusted Side Placement: Higher and to the right
-                center_x = int(bg_width * 0.65)  # Shift further to the right
-                center_y = int(bg_height * 0.40)  # Shift higher
+                # Adjusted Side Placement: Higher and further to the right
+                center_x = int(bg_width * 0.75)  # Move further to the right
+                center_y = int(bg_height * 0.30)  # Move higher
                 x = center_x - (design_width // 2)
                 y = center_y - (design_height // 2)
             elif print_type == "front":

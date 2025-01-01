@@ -56,28 +56,36 @@ def upload_file():
             bg_dpi = background.info.get("dpi", (300, 300))
             design_aspect_ratio = design.width / design.height
 
-            # Resize the design proportionally to fit on the garment
+            # Get background dimensions
             bg_width, bg_height = background.size
-            design_width = int(bg_width * 0.255)
-            design_height = int(design_width / design_aspect_ratio)
-            design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)
 
-            # Determine placement based on selected print type
+            # Determine placement and size based on selected print type
             print_type = request.form.get("print_type")
             if print_type == "side":
+                # Make the design 10% smaller for Side print
+                design_width = int(bg_width * 0.255 * 0.9)  # 10% smaller
+                design_height = int(design_width / design_aspect_ratio)
+
                 # Adjusted Side Placement: Higher and further to the right
                 center_x = int(bg_width * 0.75)  # Move further to the right
                 center_y = int(bg_height * 0.30)  # Move higher
                 x = center_x - (design_width // 2)
                 y = center_y - (design_height // 2)
             elif print_type == "front":
-                # Place the design at the center of the background
+                # Use original size for Front Centre
+                design_width = int(bg_width * 0.255)
+                design_height = int(design_width / design_aspect_ratio)
                 x = (bg_width - design_width) // 2
                 y = (bg_height - design_height) // 2
             else:
                 # Default to center if no valid print type is provided
+                design_width = int(bg_width * 0.255)
+                design_height = int(design_width / design_aspect_ratio)
                 x = (bg_width - design_width) // 2
                 y = (bg_height - design_height) // 2
+
+            # Resize the design
+            design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)
 
             # Paste the design onto the background
             composite = background.copy()

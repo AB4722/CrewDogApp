@@ -61,13 +61,16 @@ def upload_file():
             design_height = int(design_width / design_aspect_ratio)
             design = design.resize((design_width, design_height), Image.ANTIALIAS)
 
-            # Center the design at 55% of the background's height and width
-            center_x = int(bg_width * 0.55)
-            center_y = int(bg_height * 0.55)
+            # Default placement (centered)
+            x = (bg_width - design_width) // 2
+            y = (bg_height - design_height) // 2
 
-            # Calculate top-left coordinates for the design
-            x = center_x - (design_width // 2)
-            y = center_y - (design_height // 2)
+            # Adjust placement based on selected print type
+            print_type = request.form.get("print_type")
+            if print_type == "side":
+                # Position at 55% height and width
+                x = int(bg_width * 0.55 - design_width / 2)
+                y = int(bg_height * 0.55 - design_height / 2)
 
             # Paste the design onto the background
             composite = background.copy()

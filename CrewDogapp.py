@@ -52,16 +52,26 @@ def upload_file():
 
         # Process the selected garment file
         with Image.open(garment_file_path).convert("RGBA") as background, Image.open(design_path).convert("RGBA") as design:
-            # Resize and position the design (for simplicity, placing it at the center here)
+            # Resize and position the design
             bg_width, bg_height = background.size
             design_aspect_ratio = design.width / design.height
-            design_width = int(bg_width * 0.3)  # Scale design to 30% of background width
+
+            # Resize the design to 85% of its original size
+            design_width = int(bg_width * 0.255)
             design_height = int(design_width / design_aspect_ratio)
             design = design.resize((design_width, design_height), Image.ANTIALIAS)
 
-            x = (bg_width - design_width) // 2
-            y = (bg_height - design_height) // 2
+            # Position the design in the top-right corner
+            dpi = 300
+            offset_mm_top = 5  # 5mm down
+            offset_mm_right = 10  # 10mm to the left of the right edge
+            offset_px_top = int((offset_mm_top / 25.4) * dpi)
+            offset_px_right = int((offset_mm_right / 25.4) * dpi)
 
+            x = bg_width - design_width - offset_px_right
+            y = offset_px_top
+
+            # Paste the design onto the background
             composite = background.copy()
             composite.paste(design, (x, y), design)
 

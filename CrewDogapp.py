@@ -52,8 +52,8 @@ def upload_file():
 
         # Process the selected garment file
         with Image.open(garment_file_path) as background, Image.open(design_path) as design:
-            # Ensure high DPI for the design
-            target_dpi = (600, 600)  # Set target DPI
+            # Ensure high quality by preserving original dimensions and DPI
+            target_dpi = (600, 600)  # High-quality DPI
             design_dpi = design.info.get("dpi", target_dpi)
             background_dpi = background.info.get("dpi", target_dpi)
 
@@ -61,43 +61,38 @@ def upload_file():
             background = background.convert("RGBA")
             design = design.convert("RGBA")
 
-            # Resize the design proportionally to fit on the garment
+            # Get background dimensions
             bg_width, bg_height = background.size
-            design_aspect_ratio = design.width / design.height
 
-            # Determine placement and size based on selected print type
+            # Determine placement based on selected print type
             print_type = request.form.get("print_type")
             if print_type == "side":
-                # Make the design 10% smaller for Side print
-                design_width = int(bg_width * 0.255 * 0.9)  # 10% smaller
-                design_height = int(design_width / design_aspect_ratio)
-
                 # Adjusted Side Placement: Move 5% left and 2% down
                 center_x = int(bg_width * 0.70)  # 75% - 5% = 70%
                 center_y = int(bg_height * 0.32)  # 30% + 2% = 32%
-                x = center_x - (design_width // 2)
-                y = center_y - (design_height // 2)
+                x = center_x - (design.width // 2)
+                y = center_y - (design.height // 2)
             elif print_type == "front":
-                # Use original size for Front Centre
-                design_width = int(bg_width * 0.255)
-                design_height = int(design_width / design_aspect_ratio)
-                x = (bg_width - design_width) // 2
-                y = (bg_height - design_height) // 2
+                # Place the design at the center of the background
+                x = (bg_width - design.width) // 2
+                y = (bg_height - design.height) // 2
             else:
                 # Default to center if no valid print type is provided
-                design_width = int(bg_width * 0.255)
-                design_height = int(design_width / design_aspect_ratio)
-                x = (bg_width - design_width) // 2
-                y = (bg_height - design_height) // 2
+                x = (bg_width - design.width) // 2
+                y = (bg_height - design.height) // 2
 
-            # Resize the design with high-quality resampling and maintain DPI
-            design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)
+            # Ensure the design fits within the background
+            if design.width > bg_width or design.height > bg_height:
+                scale_factor = min(bg_width / design.width, bg_height / design.height)
+                new_width = int(design.width * scale_factor)
+                new_height = int(design.height * scale_factor)
+                design = design.resize((new_width, new_height), Image.Resampling.LANCZOS)
 
             # Paste the design onto the background
             composite = background.copy()
             composite.paste(design, (x, y), design)
 
-            # Save the modified image with enhanced DPI
+            # Save the modified image with high DPI
             output_file_name = f"output_{os.path.basename(garment_file_path)}"
             output_file_path = os.path.join(output_dir, output_file_name)
             composite.save(output_file_path, "PNG", dpi=target_dpi)

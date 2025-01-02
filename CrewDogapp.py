@@ -67,26 +67,34 @@ def upload_file():
             # Determine placement based on selected print type
             print_type = request.form.get("print_type")
             if print_type == "side":
+                # Make the design 10% smaller for Side print
+                design_width = int(design.width * 0.9)
+                design_height = int(design.height * 0.9)
+
                 # Adjusted Side Placement: Move 5% left and 2% down
                 center_x = int(bg_width * 0.70)  # 75% - 5% = 70%
                 center_y = int(bg_height * 0.32)  # 30% + 2% = 32%
-                x = center_x - (design.width // 2)
-                y = center_y - (design.height // 2)
+                x = center_x - (design_width // 2)
+                y = center_y - (design_height // 2)
             elif print_type == "front":
-                # Place the design at the center of the background
-                x = (bg_width - design.width) // 2
-                y = (bg_height - design.height) // 2
+                # Use original size for Front Centre
+                design_width = design.width
+                design_height = design.height
+                x = (bg_width - design_width) // 2
+                y = (bg_height - design_height) // 2
             else:
                 # Default to center if no valid print type is provided
-                x = (bg_width - design.width) // 2
-                y = (bg_height - design.height) // 2
+                design_width = design.width
+                design_height = design.height
+                x = (bg_width - design_width) // 2
+                y = (bg_height - design_height) // 2
 
-            # Ensure the design fits within the background
-            if design.width > bg_width or design.height > bg_height:
-                scale_factor = min(bg_width / design.width, bg_height / design.height)
-                new_width = int(design.width * scale_factor)
-                new_height = int(design.height * scale_factor)
-                design = design.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            # Resize only if necessary to fit the background
+            if design_width > bg_width or design_height > bg_height:
+                scale_factor = min(bg_width / design_width, bg_height / design_height)
+                design_width = int(design_width * scale_factor)
+                design_height = int(design_height * scale_factor)
+                design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)
 
             # Paste the design onto the background
             composite = background.copy()

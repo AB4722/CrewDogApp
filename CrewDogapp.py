@@ -25,7 +25,6 @@ def upload_file():
 
         # Ensure the folder exists
         if not os.path.exists(garment_folder):
-            print(f"Error: {garment_folder} not found.")
             abort(400, description=f"{garment_type.capitalize()} backgrounds not found.")
 
         # Get the first garment file
@@ -36,7 +35,6 @@ def upload_file():
         ]
 
         if not garment_files:
-            print(f"Error: No files found in {garment_folder}.")
             abort(400, description=f"No {garment_type.capitalize()} files found.")
 
         garment_file_path = garment_files[0]
@@ -53,72 +51,60 @@ def upload_file():
         os.makedirs(output_dir, exist_ok=True)
 
         # Process the selected garment file
-        try:
-            with Image.open(garment_file_path) as background, Image.open(design_path) as design:
-                # Ensure high quality by preserving original dimensions and DPI
-                target_dpi = (600, 600)  # High-quality DPI
-                design_dpi = design.info.get("dpi", target_dpi)
-                background_dpi = background.info.get("dpi", target_dpi)
+        with Image.open(garment_file_path) as background, Image.open(design_path) as design:
+            # Ensure high quality by preserving original dimensions and DPI
+            target_dpi = (600, 600)  # High-quality DPI
+            design_dpi = design.info.get("dpi", target_dpi)
+            background_dpi = background.info.get("dpi", target_dpi)
 
-                # Convert both images to RGBA for transparency support
-                background = background.convert("RGBA")
-                design = design.convert("RGBA")
+            # Convert both images to RGBA for transparency support
+            background = background.convert("RGBA")
+            design = design.convert("RGBA")
 
-                # Debugging: Print image sizes
-                print(f"Background size: {background.size}, DPI: {background_dpi}")
-                print(f"Design size: {design.size}, DPI: {design_dpi}")
+            # Get background dimensions (fixed at 718 x 717)
+            bg_width, bg_height = background.size
 
-                # Get background dimensions
-                bg_width, bg_height = background.size
+            # Determine placement and size based on selected print type
+            print_type = request.form.get("print_type")
+            if print_type == "front":
+                # Resize design to 30% of background height
+                design_height = int(bg_height * 0.3)
+                design_aspect_ratio = design.width / design.height
+                design_width = int(design_height * design_aspect_ratio)
 
-                # Determine placement based on selected print type
-                print_type = request.form.get("print_type")
-                if print_type == "side":
-                    # Make the design 10% smaller for Side print
-                    design_width = int(design.width * 0.9)
-                    design_height = int(design.height * 0.9)
+                # Center the design
+                x = (bg_width - design_width) // 2
+                y = (bg_height - design_height) // 2
+            elif print_type == "side":
+                # Make the design 10% smaller for Side print
+                design_height = int(bg_height * 0.3 * 0.9)  # 10% smaller
+                design_aspect_ratio = design.width / design.height
+                design_width = int(design_height * design_aspect_ratio)
 
-                    # Adjusted Side Placement: Move 5% left and 2% down
-                    center_x = int(bg_width * 0.70)  # 75% - 5% = 70%
-                    center_y = int(bg_height * 0.32)  # 30% + 2% = 32%
-                    x = center_x - (design_width // 2)
-                    y = center_y - (design_height // 2)
-                elif print_type == "front":
-                    # Place the design at the center of the background
-                    design_width = design.width
-                    design_height = design.height
-                    x = (bg_width - design_width) // 2
-                    y = (bg_height - design_height) // 2
-                else:
-                    # Default to center if no valid print type is provided
-                    design_width = design.width
-                    design_height = design.height
-                    x = (bg_width - design_width) // 2
-                    y = (bg_height - design_height) // 2
+                # Adjusted Side Placement: Offset placement
+                center_x = int(bg_width * 0.70)
+                center_y = int(bg_height * 0.32)
+                x = center_x - (design_width // 2)
+                y = center_y - (design_height // 2)
+            else:
+                # Default to center if no valid print type is provided
+                design_height = int(bg_height * 0.3)
+                design_aspect_ratio = design.width / design.height
+                design_width = int(design_height * design_aspect_ratio)
+                x = (bg_width - design_width) // 2
+                y = (bg_height - design_height) // 2
 
-                # Resize only if necessary to fit the background
-                if design_width > bg_width or design_height > bg_height:
-                    scale_factor = min(bg_width / design_width, bg_height / design_height)
-                    design_width = int(design_width * scale_factor)
-                    design_height = int(design_height * scale_factor)
-                    design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)
+            # Resize the design with high-quality resampling
+            design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)
 
-                # Debugging: Print final placement and size
-                print(f"Design placement: (x: {x}, y: {y}), size: ({design_width}, {design_height})")
+            # Paste the design onto the background
+            composite = background.copy()
+            composite.paste(design, (x, y), design)
 
-                # Paste the design onto the background
-                composite = background.copy()
-                composite.paste(design, (x, y), design)
-
-                # Save the modified image with high DPI
-                output_file_name = f"output_{os.path.basename(garment_file_path)}"
-                output_file_path = os.path.join(output_dir, output_file_name)
-                composite.save(output_file_path, "PNG", dpi=target_dpi)
-
-                print(f"Output saved at: {output_file_path}")
-        except Exception as e:
-            print(f"Error during image processing: {e}")
-            abort(500, description="Error processing images.")
+            # Save the modified image with high DPI
+            output_file_name = f"output_{os.path.basename(garment_file_path)}"
+            output_file_path = os.path.join(output_dir, output_file_name)
+            composite.save(output_file_path, "PNG", dpi=target_dpi)
 
         # Send the modified image back to the user
         return send_file(output_file_path, as_attachment=True)

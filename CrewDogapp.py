@@ -39,48 +39,49 @@ def upload_file():
 
         # Get uploaded design file
         design_file = request.files["design"]
-        design = Image.open(design_file.stream).convert("RGBA")
+        design = Image.open(design_file.stream)
 
         # Process garment file
-        with Image.open(garment_file_path).convert("RGBA") as background:
+        with Image.open(garment_file_path) as background:
+            # Preserve original DPI and ensure both images support transparency
+            bg_dpi = background.info.get("dpi", (300, 300))
+            background = background.convert("RGBA")
+            design = design.convert("RGBA")
+
             bg_width, bg_height = background.size
+            design_width, design_height = design.size
 
             # Determine placement and size
             print_type = request.form.get("print_type")
             if print_type == "front":
-                design_height = int(bg_height * 0.3)
+                target_height = int(bg_height * 0.3)
             elif print_type == "side":
-                design_height = int(bg_height * 0.3 * 0.9)  # 10% smaller for side print
+                target_height = int(bg_height * 0.3 * 0.9)  # 10% smaller for side print
             else:
-                design_height = int(bg_height * 0.3)
+                target_height = int(bg_height * 0.3)
 
-            # Compute new design dimensions
-            design_aspect_ratio = design.width / design.height
-            design_width = int(design_height * design_aspect_ratio)
+            # Scale design proportionally only if resizing is required
+            if target_height < design_height:
+                scale_factor = target_height / design_height
+                design_width = int(design_width * scale_factor)
+                design_height = target_height
+                design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)
 
-            # Compute placement coordinates
+            # Compute placement
             if print_type == "side":
                 x = int(bg_width * 0.70) - (design_width // 2)
                 y = int(bg_height * 0.32) - (design_height // 2)
-            else:
+            else:  # Front placement
                 x = (bg_width - design_width) // 2
                 y = (bg_height - design_height) // 2
-
-            # Resize the design if needed
-            if design_width > bg_width or design_height > bg_height:
-                scale_factor = min(bg_width / design_width, bg_height / design_height)
-                design_width = int(design_width * scale_factor)
-                design_height = int(design_height * scale_factor)
-
-            design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)
 
             # Paste the design onto the background
             composite = background.copy()
             composite.paste(design, (x, y), design)
 
-            # Save the final image in memory to minimize disk I/O
+            # Save the final image with high DPI
             output = io.BytesIO()
-            composite.save(output, "PNG", dpi=(300, 300))
+            composite.save(output, "PNG", dpi=bg_dpi)
             output.seek(0)
 
         return send_file(output, mimetype="image/png", as_attachment=True, download_name="output.png")

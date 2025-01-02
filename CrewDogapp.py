@@ -52,15 +52,16 @@ def upload_file():
 
         # Process the selected garment file
         with Image.open(garment_file_path) as background, Image.open(design_path) as design:
-            # Preserve DPI or fallback to default
-            bg_dpi = background.info.get("dpi", (300, 300))
-            design_dpi = design.info.get("dpi", (300, 300))
+            # Ensure high DPI for the design
+            target_dpi = (600, 600)  # Set target DPI
+            design_dpi = design.info.get("dpi", target_dpi)
+            background_dpi = background.info.get("dpi", target_dpi)
 
-            # Convert both images to RGBA
+            # Convert both images to RGBA for transparency support
             background = background.convert("RGBA")
             design = design.convert("RGBA")
 
-            # Get background dimensions
+            # Resize the design proportionally to fit on the garment
             bg_width, bg_height = background.size
             design_aspect_ratio = design.width / design.height
 
@@ -89,17 +90,17 @@ def upload_file():
                 x = (bg_width - design_width) // 2
                 y = (bg_height - design_height) // 2
 
-            # Resize the design with high-quality resampling
+            # Resize the design with high-quality resampling and maintain DPI
             design = design.resize((design_width, design_height), Image.Resampling.LANCZOS)
 
-            # Paste the design onto the background with transparency support
+            # Paste the design onto the background
             composite = background.copy()
             composite.paste(design, (x, y), design)
 
-            # Save the modified image with original DPI
+            # Save the modified image with enhanced DPI
             output_file_name = f"output_{os.path.basename(garment_file_path)}"
             output_file_path = os.path.join(output_dir, output_file_name)
-            composite.save(output_file_path, "PNG", dpi=bg_dpi)
+            composite.save(output_file_path, "PNG", dpi=target_dpi)
 
         # Send the modified image back to the user
         return send_file(output_file_path, as_attachment=True)
